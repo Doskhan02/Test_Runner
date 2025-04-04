@@ -1,12 +1,15 @@
 using Scellecs.Morpeh;
+using UnityEngine;
 using Unity.IL2CPP.CompilerServices;
-using TriInspector;
 
 [System.Serializable]
 [Il2CppSetOption(Option.NullChecks, false)]
 [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
 [Il2CppSetOption(Option.DivideByZeroChecks, false)]
-public struct ActivePlayerInput : IComponent
+public struct PlayerMovementComponent : IComponent 
 {
-    [ReadOnly] public float horizontal => UnityEngine.Input.GetAxisRaw("Horizontal");
+    public float delay;
+    public float offset;
+    public int currentPosition;
+    public float posX;
 }

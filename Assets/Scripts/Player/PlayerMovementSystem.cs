@@ -12,14 +12,12 @@ public sealed class PlayerMovementSystem : ISystem
     private Stash<TransformComponent> transformStash;
     private Stash<SpeedComponent> speedStash;
     private Stash<ActivePlayerInput> inputStash;
-    private const int OFFSET = 5;
-    private int currentPosition = 0;
-    private float delay = 0;
-    private float posX = 0;
+    private Stash<PlayerMovementComponent> playerMovementStash;
     public void OnAwake() 
     {
         _playerFilter = World.Filter
             .With<PlayerTag>()
+            .With<PlayerMovementComponent>()
             .With<TransformComponent>()
             .With<SpeedComponent>()
             .With<ActivePlayerInput>().Build();
@@ -27,6 +25,7 @@ public sealed class PlayerMovementSystem : ISystem
         transformStash = World.GetStash<TransformComponent>();
         speedStash = World.GetStash<SpeedComponent>();
         inputStash = World.GetStash<ActivePlayerInput>();
+        playerMovementStash = World.GetStash<PlayerMovementComponent>();
     }
 
     public void OnUpdate(float deltaTime) 
@@ -36,31 +35,40 @@ public sealed class PlayerMovementSystem : ISystem
             ref var transformComponent = ref transformStash.Get(entity);
             ref var speedComponent = ref speedStash.Get(entity);
             ref var inputComponent = ref inputStash.Get(entity);
+            ref var playerMovementComponent = ref playerMovementStash.Get(entity);
 
             transformComponent.Transform.position =
                 UnityEngine.Vector3.Lerp(transformComponent.Transform.position,
-                new Vector3(posX, 1, 0),
+                new Vector3(playerMovementComponent.posX, 1, 0),
                 5 * deltaTime);
 
-            delay -= deltaTime;
-            if (inputComponent.horizontal != 0 && delay <= 0)
+            playerMovementComponent.delay -= deltaTime;
+            if (inputComponent.horizontal != 0 && playerMovementComponent.delay <= 0)
             {
-                delay = 0.3f;
-                if (currentPosition == 0)
+                playerMovementComponent.delay = 0.3f;
+                if (playerMovementComponent.currentPosition == 0)
                 {
-                    posX = OFFSET * inputComponent.horizontal;
+                    playerMovementComponent.posX = playerMovementComponent.offset * inputComponent.horizontal;
 
                     if (inputComponent.horizontal > 0)
-                        currentPosition = 1;
+                        playerMovementComponent.currentPosition = 1;
                     else
                     {
-                        currentPosition = -1;
+                        playerMovementComponent.currentPosition = -1;
                     }
                 }
                 else
                 {
-                    posX = 0;
-                    currentPosition = 0;
+                    if((playerMovementComponent.currentPosition == 1 && inputComponent.horizontal > 0) ||
+                        (playerMovementComponent.currentPosition == -1 && inputComponent.horizontal < 0))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        playerMovementComponent.posX = 0;
+                        playerMovementComponent.currentPosition = 0;
+                    }
                 }
 
             }

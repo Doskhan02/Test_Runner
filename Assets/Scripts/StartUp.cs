@@ -10,7 +10,6 @@ public class Startup : MonoBehaviour
     private void Awake()
     {
         Application.targetFrameRate = 60;
-
     }
     public void StartGame()
     {
@@ -21,17 +20,11 @@ public class Startup : MonoBehaviour
         var systemsGroup = this.world.CreateSystemsGroup();
         systemsGroup.AddSystem(new TileSpawnSystem());
         systemsGroup.AddSystem(new PlayerMovementSystem());
-        systemsGroup.AddSystem(new InputSystem());
         systemsGroup.AddSystem(new SpeedOverTimeSystem());
         systemsGroup.AddSystem(new CollisionTriggerSystem());
         systemsGroup.AddSystem(new TileMovementSystem());
         systemsGroup.AddSystem(new ScoreSystem());
 
         this.world.AddSystemsGroup(order: 0, systemsGroup);
-    }
-    public void RestartGame()
-    {
-        World.Default.Dispose();
-        StartGame();
     }
 }

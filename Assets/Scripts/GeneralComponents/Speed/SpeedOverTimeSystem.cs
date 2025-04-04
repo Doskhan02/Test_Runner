@@ -20,7 +20,6 @@ public sealed class SpeedOverTimeSystem : ISystem
     public void OnUpdate(float deltaTime) 
     {
         globalSpeed += 0.3f * deltaTime;
-        _speedOverTimeFilter = World.Filter.With<SpeedComponent>().Build();
         foreach (var entity in _speedOverTimeFilter)
         {
             ref var speedComponent = ref speedStash.Get(entity);

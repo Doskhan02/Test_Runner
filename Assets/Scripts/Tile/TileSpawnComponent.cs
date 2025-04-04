@@ -10,4 +10,7 @@ using System.Collections.Generic;
 public struct TileSpawnComponent : IComponent 
 {
     public List<GameObject> prefabs;
+    public Vector3 spawnPos;
+    public Vector3 despawnPos;
+    public int initSpawnCount;
 }

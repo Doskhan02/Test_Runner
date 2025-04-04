@@ -14,10 +14,10 @@ public sealed class TileSpawnSystem : ISystem
     private Stash<TileSpawnComponent> tileSpawnStash;
     private Stash<TransformComponent> transformStash;
 
-    private Vector3 spawnPos = new Vector3(0, -2, 50);
-    private Vector3 despawnPos = new Vector3(0, -2, -8);
     private List<GameObject> tilePrefabs = new List<GameObject>();
     private readonly Queue<GameObject> spawnedTiles = new();
+
+    Entity spawnerEntity;
 
     public void OnAwake() 
     {
@@ -26,44 +26,36 @@ public sealed class TileSpawnSystem : ISystem
         _tileSpawnerFilter = World.Filter.With<TileSpawnComponent>().Build();
         tileSpawnStash = World.GetStash<TileSpawnComponent>();
         transformStash = World.GetStash<TransformComponent>();
+        spawnerEntity = _tileSpawnerFilter.GetEntity(0);
         Init();
     }
-
     public void OnUpdate(float deltaTime) 
     {
-        _tileFilter = World.Filter.With<TileTag>().Build();
+        ref var tileSpawnComponent = ref tileSpawnStash.Get(spawnerEntity);
         foreach (var entity in _tileFilter)
         {
             ref var transform = ref transformStash.Get(entity);
             if(entity == null)
                 continue;
-            if (transform.Transform.position.z < despawnPos.z)
+            if (transform.Transform.position.z < tileSpawnComponent.despawnPos.z)
             {
                 Object.Destroy(spawnedTiles.Dequeue());
                 World.RemoveEntity(entity);
-                SpawnTile(spawnPos);
+                SpawnTile(tileSpawnComponent.spawnPos);
             }
         }
-    }
-
-    public void Dispose()
-    {
-
     }
     public void Init()
     {
         spawnedTiles.Clear();
         tilePrefabs.Clear();
-        foreach (var entity in _tileSpawnerFilter)
+        ref var tileSpawnComponent = ref tileSpawnStash.Get(spawnerEntity);
+        for (int i = 0; i < tileSpawnComponent.prefabs.Count; i++)
         {
-            ref var tileSpawnComponent = ref tileSpawnStash.Get(entity);
-            for (int i = 0; i < tileSpawnComponent.prefabs.Count; i++)
-            {
-                tilePrefabs = tileSpawnComponent.prefabs;
-            }
+            tilePrefabs = tileSpawnComponent.prefabs;
         }
-        int initCount = 6;
-        for (int i = 0; i < initCount; i++)
+
+        for (int i = 0; i < tileSpawnComponent.initSpawnCount; i++)
         {
             if(i < 3)
             {
@@ -82,5 +74,9 @@ public sealed class TileSpawnSystem : ISystem
         GameObject go = Object.Instantiate(tilePrefabs[Random.Range(0, tilePrefabs.Count)]);
         go.transform.position = spawnPos;
         spawnedTiles.Enqueue(go);
+    }
+    public void Dispose()
+    {
+
     }
 }
