@@ -12,8 +12,8 @@ public sealed class CollisionTriggerSystem : ISystem
     private Filter _playerColliderFilter;
     private Filter _obstacleColliderFilter;
     private Stash<TriggerComponent> _triggerStash;
-    private MeshCollider playerMeshCollider;
-    private List<MeshCollider> obstacleColliders = new List<MeshCollider>();
+    private Collider playerMeshCollider;
+    private List<Collider> obstacleColliders = new List<Collider>();
     public void OnAwake() 
     {
         _obstacleColliderFilter = World.Filter.With<ObstacleTag>().With<TriggerComponent>().Build();
@@ -26,14 +26,14 @@ public sealed class CollisionTriggerSystem : ISystem
         foreach (var entity in _playerColliderFilter)
         {
             ref var triggerComponent = ref _triggerStash.Get(entity);
-            playerMeshCollider = triggerComponent.meshCollider;
+            playerMeshCollider = triggerComponent.collider;
         }
         _obstacleColliderFilter = World.Filter.With<ObstacleTag>().With<TriggerComponent>().Build();
         obstacleColliders.Clear();
         foreach (var entity in _obstacleColliderFilter)
         {
             ref var triggerComponent = ref _triggerStash.Get(entity);
-            obstacleColliders.Add(triggerComponent.meshCollider);
+            obstacleColliders.Add(triggerComponent.collider);
         }
         foreach (var obstacleCollider in obstacleColliders)
         {

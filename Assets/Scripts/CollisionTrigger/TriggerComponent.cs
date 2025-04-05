@@ -8,5 +8,5 @@ using Unity.IL2CPP.CompilerServices;
 [Il2CppSetOption(Option.DivideByZeroChecks, false)]
 public struct TriggerComponent : IComponent 
 {
-    public MeshCollider meshCollider;
+    public Collider collider;
 }
